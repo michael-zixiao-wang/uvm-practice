@@ -1,8 +1,8 @@
 # ignore all the sim/ dir: sim/ is for vcs simulation
 **/sim/*
-**/!sim/Makefile
-**/!sim/*.f
-**/!sim/*.do
+!**/sim/Makefile
+!**/sim/*.f
+!**/sim/*.do
 
 # ignore all the temp files
 *.swp
