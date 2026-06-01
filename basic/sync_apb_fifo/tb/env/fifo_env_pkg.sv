@@ -5,6 +5,8 @@ package fifo_env_pkg;
   // 导入底层的包，这样 env 就能识别 wr_agent 和 rd_agent 类了
   import wr_agt_pkg::*;
   import rd_agt_pkg::*;
+  import apb_agt_pkg::*;
+  import int_mon_pkg::*;
   import fifo_cov_pkg::*;
 
   // Include 环境组件类

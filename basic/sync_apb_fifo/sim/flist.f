@@ -6,12 +6,14 @@
 +incdir+../tb/env
 +incdir+../tb/tc
 +incdir+../tb/top
++incdir+../tb/reg
 
 // ==========================================
 // 2. RTL Design (设计文件)
 // ==========================================
-../dut/sync_fifo.v
+../dut/sync_apb_fifo.v
 ../tb/intf/sync_fifo_intf.sv
+../tb/intf/apb_intf.sv
 
 // ==========================================
 // 3. UVM Packages (按层级自底向上编译)
@@ -19,6 +21,8 @@
 // ==========================================
 ../tb/agt/wr_agt_pkg.sv
 ../tb/agt/rd_agt_pkg.sv
+../tb/agt/apb_agt_pkg.sv
+../tb/agt/int_mon_pkg.sv
 ../tb/cov/fifo_cov_pkg.sv
 ../tb/env/fifo_env_pkg.sv
 ../tb/tc/fifo_test_pkg.sv

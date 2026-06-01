@@ -1,4 +1,4 @@
-module sync_fifo_apb_top #(
+module sync_apb_fifo #(
     parameter DATA_WIDTH = 32,
     parameter DEPTH = 16
 )(

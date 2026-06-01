@@ -2,6 +2,8 @@ class sync_fifo_env extends uvm_env;
   `uvm_component_utils(sync_fifo_env)
   wr_agent wr_agt;
   rd_agent rd_agt;
+  apb_agent apb_agt;
+  int_monitor int_mon; 
 
   sync_fifo_sb sb;
   sync_fifo_model mdl;  
@@ -23,6 +25,8 @@ class sync_fifo_env extends uvm_env;
     mdl = sync_fifo_model::type_id::create("mdl", this);
     sb = sync_fifo_sb::type_id::create("sb", this);
     clct = sync_fifo_cov_collector::type_id::create("clct", this);
+    int_mon = int_monitor::type_id::create("int_mon", this);
+    apb_agt = apb_agent::type_id::create("apb_agt", this);
   endfunction
 
   function void connect_phase(uvm_phase phase);
@@ -31,6 +35,8 @@ class sync_fifo_env extends uvm_env;
       vsqr.wr_sqr = wr_agt.sqr;
     if(rd_agt.get_is_active() == UVM_ACTIVE)
       vsqr.rd_sqr = rd_agt.sqr;
+    if(apb_agt.get_is_active() == UVM_ACTIVE)
+      vsqr.apb_sqr = apb_agt.sqr;
     
     wr_agt.mon.ap.connect(mdl.wr_imp);
     rd_agt.mon.ap.connect(mdl.rd_imp);
@@ -44,7 +50,5 @@ class sync_fifo_env extends uvm_env;
     mdl.wr_ap.connect(sb.exp_wr_fifo.analysis_export);
     mdl.rd_ap.connect(sb.exp_rd_fifo.analysis_export); 
   endfunction
-
-  
 
 endclass

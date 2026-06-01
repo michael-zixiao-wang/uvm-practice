@@ -1,35 +1,3 @@
-class wr_sanity_seq extends uvm_sequence #(wr_transaction);
-  `uvm_object_utils(wr_sanity_seq)
-
-  function new (string name = "wr_sanity_seq");
-    super.new(name);
-  endfunction
-
-  virtual task body();
-    repeat(5) begin
-      `uvm_do_with(req,{});
-      `uvm_info(get_type_name(),"a wr trans was generated",UVM_HIGH)
-    end
-  endtask
-
-endclass
-
-class rd_sanity_seq extends uvm_sequence #(rd_transaction);
-  `uvm_object_utils(rd_sanity_seq)
-
-  function new (string name = "rd_sanity_seq");
-    super.new(name);
-  endfunction
-
-  virtual task body();
-    repeat(5) begin
-      `uvm_do_with(req,{});
-      `uvm_info(get_type_name(),"a rd trans was generated",UVM_HIGH)
-    end
-  endtask
-endclass
-
-/* use virtual seq */
 class sanity_vseq extends base_vseq;
   `uvm_object_utils(sanity_vseq)
   
@@ -38,15 +6,58 @@ class sanity_vseq extends base_vseq;
   endfunction
 
   virtual task body();
-    wr_sanity_seq wr_seq;
-    rd_sanity_seq rd_seq;
+    apb_transaction apb_tr;
+    wr_transaction  wr_tr;
+    rd_transaction  rd_tr;
+
+    `uvm_info("get_name()", "========================================", UVM_LOW)
+    `uvm_info("get_name()", "       Start Sanity Smoke Test          ", UVM_LOW)
+    `uvm_info("get_name()", "========================================", UVM_LOW)
+
+    // 第一步：控制面配置 (通过 APB 唤醒 FIFO)
+    `uvm_info("get_name()", "[STEP 1] Configuring FIFO via APB...", UVM_LOW)
+    // 向 0x00 (FIFO_CTRL) 写入 1，使能 FIFO
+    `uvm_info("get_name()", "enable fifo by fifo ctrl", UVM_LOW)
+    `uvm_do_on_with(apb_tr, p_sequencer.apb_sqr, {
+      kind == apb_transaction::APB_WRITE;
+      addr == 32'h0000_0000; 
+      data == 32'h0000_0001; 
+    })
+    // 向 0x08 (WATERMARK) 写入阈值 (Almost Full=10, Almost Empty=5)
+    `uvm_info("get_name()", "rewrite watermark", UVM_LOW)
+    `uvm_do_on_with(apb_tr, p_sequencer.apb_sqr, {
+      kind == apb_transaction::APB_WRITE;
+      addr == 32'h0000_0008; 
+      data == 32'h0000_A005; 
+    })
+
+    // 第二步：数据面激励 (写满再读空)
+    `uvm_info("get_name()", "[STEP 2] Driving Data Path...", UVM_LOW)
+    // 连续写入 5 个随机数据
+    `uvm_info("get_name()", "Writing 5 items...", UVM_LOW)
+    for(int i = 0; i < 5; i++) begin
+      `uvm_do_on(wr_tr, p_sequencer.wr_sqr)
+    end
+    // 稍微延迟一下，模拟真实的系统节拍
+    #50ns;
+    // 连续读取 3 个数据
+    `uvm_info("get_name()", "Reading 3 items...", UVM_LOW)
+    for(int i = 0; i < 3; i++) begin
+      `uvm_do_on(rd_tr, p_sequencer.rd_sqr)
+    end
     
-    `uvm_info(get_name(),"start write seq", UVM_LOW); 
-    `uvm_do_on(wr_seq, p_sequencer.wr_sqr)
-
-    `uvm_info(get_name(),"start read seq", UVM_LOW);
-    `uvm_do_on(rd_seq,p_sequencer.rd_sqr)
-
+    // 第三步：控制面状态检查 (裸读寄存器)
+    `uvm_info("get_name()", "[STEP 3] Checking Status via APB...", UVM_LOW)
+    // 读取 0x04 (FIFO_STAT) 寄存器，看看 FIFO 现在的状态
+    `uvm_do_on_with(apb_tr, p_sequencer.apb_sqr, {
+      kind == apb_transaction::APB_READ;
+      addr == 32'h0000_0004; 
+    })
+    // 打印从 APB 读回来的状态数据 (写了5个，读了3个，此时 count 应该是 2)
+    `uvm_info("get_name()", $sformatf("Read FIFO_STAT (0x04) Value = 'h%08x", apb_tr.data), UVM_LOW)
+    `uvm_info("get_name()", "========================================", UVM_LOW)
+    `uvm_info("get_name()", "       Smoke Test Finished              ", UVM_LOW)
+    `uvm_info("get_name()", "========================================", UVM_LOW)
   endtask
 endclass
 
@@ -63,37 +74,3 @@ class sanity_test extends base_test;
 
 
 endclass
-
-
-
-/* original */
-/*
-class sanity_test extends base_test;
-  `uvm_component_utils(sanity_test)
-
-  function new(string name = "sanity_test", uvm_component parent = null);
-    super.new(name, parent);
-  endfunction
-
-  virtual task run_phase(uvm_phase phase);
-    wr_sanity_seq wr_seq;
-    rd_sanity_seq rd_seq;
-
-    wr_seq = wr_sanity_seq::type_id::create("wr_seq");
-    rd_seq = rd_sanity_seq::type_id::create("rd_seq");
-
-    phase.raise_objection(this);
-
-    `uvm_info("TEST", "Executing Write Sequence...", UVM_LOW)
-    wr_seq.start(env.wr_agt.sqr); // 把 sequence 挂载到指定的 sequencer 上运行
-
-    `uvm_info("TEST", "Executing Read Sequence...", UVM_LOW)
-    rd_seq.start(env.rd_agt.sqr);
-
-    #150ns;
-
-    phase.drop_objection(this);
-  endtask
-
-endclass
-*/
