@@ -27,8 +27,7 @@ class wr_monitor extends uvm_monitor;
         tr = wr_transaction::type_id::create("tr");
         tr.data = vintf.wr_mon_cb.wr_data;
         tr.full = vintf.wr_mon_cb.full; 
-        `uvm_info(get_name(),"mon one pkt try to push:",UVM_LOW)
-        tr.print();
+        `uvm_info(get_name(),$sformatf("mon one pkt try to push:\n%s", tr.sprint()),UVM_HIGH)
         ap.write(tr);
       end
     end

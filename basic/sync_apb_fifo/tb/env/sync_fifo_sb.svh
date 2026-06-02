@@ -40,10 +40,7 @@ class sync_fifo_sb extends uvm_scoreboard;
         `uvm_info(get_name(),"wr compare successfull",UVM_LOW) 
       end else begin
         `uvm_error(get_name(),"wr compare failed")
-        $display("the exp pkt is:");
-        exp_tr.print();
-        $display("the act pkt is:");
-        act_tr.print();
+        `uvm_info(get_name(), $sformatf("the exp pkt is:\n%s\nthe act pkt is:\n%s", exp_tr.sprint(), act_tr.sprint()),UVM_LOW)
       end
     end
   endtask
@@ -62,10 +59,7 @@ class sync_fifo_sb extends uvm_scoreboard;
         `uvm_info(get_name(),"rd compare successfull",UVM_LOW) 
       end else begin
         `uvm_error(get_name(),"rd compare failed")
-        $display("the exp pkt is:");
-        exp_tr.print();
-        $display("the act pkt is:");
-        act_tr.print();
+        `uvm_info(get_name(), $sformatf("the exp pkt is:\n%s\nthe act pkt is:\n%s", exp_tr.sprint(), act_tr.sprint()),UVM_LOW)
       end
     end
   endtask

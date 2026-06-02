@@ -33,8 +33,7 @@ class apb_driver extends uvm_driver #(apb_transaction);
   endtask
 
   task drive_one_packet(apb_transaction tr);
-    `uvm_info(get_name(),"get one new transaction",UVM_HIGH);
-    tr.print();
+    `uvm_info(get_name(), $sformatf("get one new transaction:\n%s", tr.sprint()), UVM_HIGH)
     repeat(tr.idle_cycles)begin
       @(vif.drv_cb);
     end

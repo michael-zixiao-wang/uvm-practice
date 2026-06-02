@@ -31,9 +31,9 @@ class sync_fifo_model extends uvm_component;
 
     if(fifo_model.size() < DEPTH)begin
       fifo_model.push_back(tr.data);
-      `uvm_info(get_name(),$sformatf("write to ref, dep=%0d", fifo_model.size()),UVM_LOW)
+      `uvm_info(get_name(),$sformatf("write to ref, dep=%0d", fifo_model.size()),UVM_MEDIUM)
     end else begin
-      `uvm_info(get_name(),$sformatf("ref fifo is full, dep=%0d", fifo_model.size()),UVM_LOW)
+      `uvm_info(get_name(),$sformatf("ref fifo is full, dep=%0d", fifo_model.size()),UVM_MEDIUM)
     end
 
     exp_tr.full = (fifo_model.size() == DEPTH);
@@ -47,9 +47,9 @@ class sync_fifo_model extends uvm_component;
 
     if(fifo_model.size() > 0)begin
       exp_tr.data = fifo_model.pop_front();
-      `uvm_info(get_name(),$sformatf("read form ref, dep=%0d", fifo_model.size()),UVM_LOW)
+      `uvm_info(get_name(),$sformatf("read form ref, dep=%0d", fifo_model.size()),UVM_MEDIUM)
     end else begin
-      `uvm_info(get_name(),$sformatf("ref fifo is empty, dep=%0d", fifo_model.size()),UVM_LOW)
+      `uvm_info(get_name(),$sformatf("ref fifo is empty, dep=%0d", fifo_model.size()),UVM_MEDIUM)
       exp_tr.data = 'x; //note this line
     end
 

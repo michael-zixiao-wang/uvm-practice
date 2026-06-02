@@ -29,8 +29,7 @@ class rd_monitor extends uvm_monitor;
           @(vintf.rd_mon_cb);
           tr.data =  vintf.rd_mon_cb.rd_data;
           tr.empty = vintf.rd_mon_cb.empty;
-          `uvm_info(get_name(), "mon one pkt try to pop:", UVM_LOW)
-          tr.print();
+          `uvm_info(get_name(), $sformatf("mon one pkt try to pop:\n%s", tr.sprint()), UVM_HIGH)
           ap.write(tr);
           end
         join_none

@@ -24,8 +24,7 @@ class wr_driver extends uvm_driver #(wr_transaction);
   task drive_one_pkt;
     // 1. get one pkt from sqr
     seq_item_port.get_next_item(req); // seq_item_port is a member var
-    `uvm_info(get_name(),"get one req to write to fifo:",UVM_HIGH) 
-    req.print();
+    `uvm_info(get_name(),$sformatf("get one req to write to fifo:\n%s",req.sprint()),UVM_HIGH) 
 
     // 2. handle the idle
     repeat(req.idle_cycles) begin
