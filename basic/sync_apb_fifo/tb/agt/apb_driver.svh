@@ -52,17 +52,18 @@ class apb_driver extends uvm_driver #(apb_transaction);
     @(vif.drv_cb);
 
     // wait ready
-    wait(vif.drv_cb.pready === 1'b1);
-    //wait(vif.pready === 1'b1); // note this line is also right but not good
-    if(tr.kind == apb_transaction::APB_READ)begin
-      tr.data = vif.drv_cb.prdata;
+    if(vif.drv_cb.pready === 1'b1) begin
+    //wait(vif.drv_cb.pready === 1'b1); // 2. note its better to use if rather than wait 
+    //wait(vif.pready === 1'b1); // 1. note this line is also right but not good
+      if(tr.kind == apb_transaction::APB_READ)begin
+        tr.data = vif.drv_cb.prdata;
+      end
+      tr.slverr = vif.drv_cb.pslverr;
+
+      // idle
+      vif.drv_cb.psel <= 1'b0;
+      vif.drv_cb.penable <= 1'b0;
     end
-    tr.slverr = vif.drv_cb.pslverr;
-
-    // idle
-    vif.drv_cb.psel <= 1'b0;
-    vif.drv_cb.penable <= 1'b0;
-
   endtask
 
 endclass

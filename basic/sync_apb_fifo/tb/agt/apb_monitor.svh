@@ -18,25 +18,28 @@ class apb_monitor extends uvm_component;
   task run_phase(uvm_phase phase);
     apb_transaction tr;
     wait(vif.presetn === 1'b1);
-    @(vif.mon_cb);
     forever begin
-      wait( vif.pready === 1'b1 && 
-            vif.penable === 1'b1 && 
-            vif.psel === 1'b1);
-      @(vif.mon_cb);
-      tr = apb_transaction::type_id::create("tr"); 
-      if(vif.mon_cb.pwrite === 1'b1) begin
-        tr.kind = apb_transaction::APB_WRITE;
-        tr.data = vif.mon_cb.pwdata;
+      @(vif.mon_cb); // go to next cycle
+      if( vif.mon_cb.pready === 1'b1 && 
+          vif.mon_cb.penable === 1'b1 && 
+          vif.mon_cb.psel === 1'b1) begin
+        // wait will cause bug
+        // wait( vif.mon_cb.pready === 1'b1 && 
+        //       vif.mon_cb.penable === 1'b1 && 
+        //       vif.mon_cb.psel === 1'b1);
+        tr = apb_transaction::type_id::create("tr"); 
         tr.addr = vif.mon_cb.paddr;
         tr.slverr = vif.mon_cb.pslverr;    
-      end else if(vif.mon_cb.pwrite === 1'b0)begin
-        tr.kind = apb_transaction::APB_READ;
-        tr.data = vif.mon_cb.prdata;
-        tr.addr = vif.mon_cb.paddr;
-        tr.slverr = vif.mon_cb.pslverr;    
-      end     
-      ap.write(tr);
+        if(vif.mon_cb.pwrite === 1'b1) begin
+          tr.kind = apb_transaction::APB_WRITE;
+          tr.data = vif.mon_cb.pwdata;
+        end else if(vif.mon_cb.pwrite === 1'b0)begin
+          tr.kind = apb_transaction::APB_READ;
+          tr.data = vif.mon_cb.prdata;
+        end     
+        `uvm_info(get_name(), $sformatf("mon one transaction:\n%s", tr.sprint()), UVM_HIGH)
+        ap.write(tr);
+      end
     end
   endtask
 endclass

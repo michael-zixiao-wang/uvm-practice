@@ -13,7 +13,7 @@ class apb_transaction extends uvm_sequence_item;
     `uvm_field_int(addr, UVM_ALL_ON)
     `uvm_field_int(data, UVM_ALL_ON)
     `uvm_field_int(slverr, UVM_ALL_ON)
-    `uvm_field_int(idle_cycles, UVM_ALL_ON)
+    `uvm_field_int(idle_cycles, UVM_ALL_ON | UVM_NOCOMPARE)
   `uvm_object_utils_end
 
   function new(string name = "apb_transaction");
